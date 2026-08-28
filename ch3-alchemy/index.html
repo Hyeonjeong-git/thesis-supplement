@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>한자 연금술(汉字炼金术) 온라인 보충 자료</title>
-<meta name="description" content="학위논문 제3장 3.2 한자 연금술 프롬프트 입력 전문 및 개발 과정 자료">
+<meta name="description" content="학위논문 제3장 3.2 한자 연금술 프롬프트 입력 기록 및 개발 과정 자료">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Sans+SC:wght@400;500&display=swap" rel="stylesheet">
@@ -96,6 +96,7 @@ p{margin:0 0 1.05em}
 .pin{margin-top:clamp(16px,3vw,24px)}
 .pin p{margin:0;padding:0;font-size:12px;letter-spacing:.01em;
   text-align:center;color:var(--ink-3)}
+.pin span{display:inline}
 .pin b{color:var(--mark);font-weight:500}
 
 /* ---------- 차례 ---------- */
@@ -208,6 +209,7 @@ footer p:last-child{margin-bottom:0}
   .rec .num{padding-top:12px;margin-bottom:6px}
   .rec .body{padding-top:0}
   .pair,.trio{grid-template-columns:1fr}
+  .pin span{display:block}
   .meta{grid-template-columns:1fr;padding:4px 16px}
   .meta dt{padding:11px 0 0;border-bottom:0}
   .meta dd{padding:2px 0 11px}
@@ -235,7 +237,7 @@ footer p:last-child{margin-bottom:0}
       <span class="chip">텍스트 기반</span>
     </p>
     <h1>한자 연금술<span class="cn">汉字炼金术</span></h1>
-    <p class="sub">학위논문 본문에서 생략한 프롬프트 입력 전문과 개발 과정 화면을 수록한다. 게임 설계와 교육적 근거, RISEN 프롬프트 설계표는 논문 본문에 있다.</p>
+    <p class="sub">학위논문 본문에서 생략한 프롬프트 입력 기록과 개발 과정의 주요 화면을 수록한다. 게임 설계와 교육적 근거, RISEN 프롬프트 설계표는 논문 본문에 있다.</p>
     <dl class="meta">
       <dt>논문</dt><dd>AI 바이브 코딩 기반 중국어 교육 웹앱 개발 연구: 게임콘텐츠를 중심으로</dd>
       <dt>해당 절</dt><dd>제3장 텍스트 기반 게임 개발 · 3.2 단어 조합 게임</dd>
@@ -244,7 +246,7 @@ footer p:last-child{margin-bottom:0}
   </div>
 </header>
 
-<div class="pin"><div class="wrap"><p>이 자료는 <b>2026년 03월 31일</b> 자로 고정한다. 이후 웹앱 갱신 내용은 반영하지 않는다.</p></div></div>
+<div class="pin"><div class="wrap"><p><span>이 자료는 <b>2026년 03월 31일</b> 자로 고정한다.</span> <span>이후 웹앱 갱신 내용은 반영하지 않는다.</span></p></div></div>
 
 <nav class="toc" aria-label="자료 차례">
   <div class="wrap">
@@ -485,7 +487,7 @@ footer p:last-child{margin-bottom:0}
 <footer>
   <div class="wrap">
     <h5>자료에 관하여</h5>
-    <p>이 페이지는 학위논문 제3장 3.2에서 다룬 한자 연금술의 개발 기록 가운데, 지면에서 생략한 프롬프트 입력 전문과 개발 과정 화면을 수록한 것이다. 화면은 개발 당시의 기록이며 현재의 웹앱과 다를 수 있다.</p>
+    <p>이 페이지는 학위논문 제3장 3.2에서 다룬 한자 연금술의 개발 기록 가운데, 지면에서 생략한 프롬프트 입력 기록과 개발 과정의 주요 화면을 수록한 것이다. 화면은 개발 당시의 기록이며 현재의 웹앱과 다를 수 있다.</p>
     <p>프롬프트 표와 입력 내용은 실제 입력 기록이므로 문구를 사후에 수정하지 않았다. 표 안의 색상 견본은 열람 편의를 위해 화면에서만 덧붙인 것으로, 원문에는 없다.</p>
   </div>
 </footer>
