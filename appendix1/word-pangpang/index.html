@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>단어 팡팡 온라인 부록</title>
+<meta name="description" content="학위논문 부록 1 · 5.3 단어 발음 게임: 단어 팡팡 단계별 RISEN 프롬프트 설계와 핵심 구현 지시">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Sans+SC:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   온라인 보충 자료 공통 양식
+   16종 게임 및 웹앱 설계 자료에 동일하게 적용한다.
+   페이지마다 바꾸는 것은 <body data-media="..."> 값과 내용뿐이다.
+   ============================================================ */
+
+/* --- 미디어 유형별 색 축 (논문의 장 편성과 일치) --- */
+body[data-media="text"] { --g1:#f49bc1; --g2:#f7ab86; }  /* 제3장 텍스트 기반 */
+body[data-media="image"]{ --g1:#f7a98a; --g2:#f6cf8a; }  /* 제4장 이미지 기반 */
+body[data-media="audio"]{ --g1:#c3aee0; --g2:#9ad6e6; }  /* 제5장 음성 기반 */
+body[data-media="video"]{ --g1:#8fd3e8; --g2:#8fa4e0; }  /* 제6장 영상 기반 */
+body[data-media="app"]  { --g1:#f49bc1; --g2:#9ad6e6; --g-mid:#f6cf8a,#c3aee0; } /* 제7장 웹앱 설계 */
+
+:root{
+  --ground:#faf8fb;
+  --card:#ffffff;
+  --ink:#1e2450;
+  --ink-2:#565d88;
+  --ink-3:#9095b4;
+  --rule:rgba(30,36,80,.11);
+  --rule-2:rgba(30,36,80,.2);
+  --mark:#c2447e;
+  --mark-soft:rgba(232,132,178,.11);
+  --g1:#f49bc1; --g2:#f7ab86;
+  --grad:linear-gradient(112deg,var(--g1) 0%,var(--g2) 100%);
+  --grad-thin:linear-gradient(90deg,var(--g1),var(--g2));
+
+  --sans:"Noto Sans KR","Noto Sans SC",system-ui,-apple-system,sans-serif;
+  --cn:"Noto Sans SC","Noto Sans KR",sans-serif;
+
+  --wrap:1060px;
+  --prose:100%;
+  --rail:92px;
+  --r:20px;
+  --r-s:12px;
+}
+body[data-media="app"]{
+  --grad:linear-gradient(112deg,var(--g1) 0%,#f6cf8a 36%,#c3aee0 68%,var(--g2) 100%);
+  --grad-thin:linear-gradient(90deg,var(--g1),#f6cf8a 36%,#c3aee0 68%,var(--g2));
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{
+  margin:0;background:var(--ground);color:var(--ink);
+  font-family:var(--sans);font-weight:400;font-size:16.5px;line-height:1.8;
+  letter-spacing:-.005em;word-break:keep-all;overflow-wrap:anywhere;
+}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 clamp(18px,5vw,40px)}
+.prose{max-width:var(--prose)}
+p{margin:0 0 1.05em}
+
+/* ---------- 표제 ---------- */
+.mast{padding:clamp(22px,4vw,34px) 0 0}
+.mast > .wrap{
+  background:var(--grad);border-radius:var(--r);
+  padding:clamp(30px,6vw,54px) clamp(22px,5vw,44px) clamp(26px,4vw,38px);
+}
+.kicker{
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0 0 20px;
+  font-size:11.5px;font-weight:500;letter-spacing:.16em;
+  color:rgba(30,36,80,.6);
+}
+.kicker .chip{
+  color:var(--ink);background:rgba(255,255,255,.7);
+  padding:4px 13px;border-radius:999px;letter-spacing:.1em;
+}
+.mast h1{margin:0;font-weight:700;font-size:clamp(2rem,6vw,3.1rem);
+  line-height:1.18;letter-spacing:-.038em;color:var(--ink)}
+.mast h1 .cn{display:block;font-family:var(--cn);font-weight:400;
+  color:rgba(30,36,80,.6);font-size:clamp(1.15rem,3.2vw,1.6rem);
+  letter-spacing:.16em;margin-top:.44em}
+.mast .sub{margin:22px 0 0;max-width:var(--prose);color:rgba(30,36,80,.8);font-size:16px}
+.meta{
+  display:grid;grid-template-columns:104px minmax(0,1fr);gap:0;margin:28px 0 0;
+  background:rgba(255,255,255,.64);border-radius:var(--r-s);
+  padding:6px clamp(14px,3vw,20px);font-size:14px;
+}
+.meta dt{font-size:11.5px;font-weight:500;letter-spacing:.08em;
+  color:rgba(30,36,80,.55);padding:11px 0;border-bottom:1px solid rgba(255,255,255,.92)}
+.meta dd{margin:0;padding:11px 0;border-bottom:1px solid rgba(255,255,255,.92);color:var(--ink)}
+.meta dt:last-of-type,.meta dd:last-of-type{border-bottom:0}
+
+/* ---------- 고정 안내 ---------- */
+.pin{margin-top:clamp(16px,3vw,24px)}
+.pin p{margin:0;padding:0;font-size:12px;letter-spacing:.01em;
+  text-align:center;color:var(--ink-3)}
+.pin span{display:inline}
+.pin b{color:var(--mark);font-weight:500}
+
+/* ---------- 차례 ---------- */
+nav.toc{position:sticky;top:0;z-index:40;background:rgba(250,248,251,.93);
+  backdrop-filter:blur(10px);margin-top:18px;border-bottom:1px solid var(--rule)}
+nav.toc ol{list-style:none;display:flex;margin:0;padding:0;overflow-x:auto;scrollbar-width:none}
+nav.toc ol::-webkit-scrollbar{display:none}
+nav.toc a{display:block;padding:12px 15px;white-space:nowrap;text-decoration:none;cursor:pointer;
+  color:var(--ink-2);font-size:13.5px;font-weight:500;border-bottom:2px solid transparent}
+nav.toc a:hover{color:var(--ink)}
+nav.toc a.on{color:var(--mark);border-bottom-color:var(--mark)}
+nav.toc li:first-child a{padding-left:0}
+
+/* ---------- 절 ---------- */
+main{padding-top:clamp(30px,5vw,48px)}
+section{margin:0 0 clamp(48px,7vw,78px);scroll-margin-top:58px}
+
+.band{margin:0 0 clamp(24px,4vw,34px)}
+.band .wrap{display:flex;align-items:center;gap:clamp(14px,3vw,20px);
+  background:var(--grad);border-radius:var(--r);
+  padding:clamp(18px,3.2vw,24px) clamp(20px,4vw,28px)}
+.band .mk{
+  flex:none;min-width:clamp(50px,10vw,60px);height:clamp(50px,10vw,60px);
+  background:rgba(255,255,255,.84);color:var(--ink);border-radius:999px;
+  display:grid;place-items:center;padding:0 12px;
+  font-weight:500;font-size:clamp(13px,3vw,15px);letter-spacing:.02em;
+}
+.band h2{margin:0;font-weight:700;font-size:clamp(1.15rem,3.4vw,1.55rem);
+  line-height:1.34;letter-spacing:-.028em;color:var(--ink)}
+.band .note{margin:4px 0 0;font-size:13px;color:rgba(30,36,80,.68);font-weight:400;line-height:1.6}
+
+.lead{max-width:var(--prose);font-size:16.5px;color:var(--ink-2)}
+h3{font-weight:700;font-size:1.02rem;margin:2.4em 0 1em;letter-spacing:-.02em;
+  padding-bottom:.5em;border-bottom:1px solid var(--rule)}
+
+/* ---------- 기록 항목 ---------- */
+.rec{display:grid;grid-template-columns:var(--rail) minmax(0,1fr);gap:0 24px;
+  margin:clamp(22px,3.6vw,32px) 0 0;scroll-margin-top:62px}
+.rec .num{
+  font-size:11.5px;font-weight:500;letter-spacing:.11em;color:var(--mark);
+  padding-top:12px;position:relative;
+}
+.rec .num::before{content:"";position:absolute;left:0;top:0;width:34px;height:3px;
+  border-radius:999px;background:var(--grad-thin)}
+.rec .body{padding-top:12px;min-width:0}
+.rec h4{margin:0 0 .55em;font-size:15px;font-weight:700;letter-spacing:-.018em;line-height:1.56}
+.rec .body > p{max-width:var(--prose);font-size:15px;color:var(--ink-2);margin:0 0 1.1em}
+
+/* ---------- 프롬프트 표 ---------- */
+.spec{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);
+  border:1px solid var(--rule);border-radius:var(--r-s);overflow:hidden;
+  box-shadow:0 2px 14px rgba(30,36,80,.05);font-size:14px}
+.spec caption{caption-side:top;text-align:left;font-size:11px;font-weight:500;
+  letter-spacing:.13em;color:var(--ink-3);padding:0 0 8px}
+.spec th{text-align:left;vertical-align:top;width:168px;padding:14px 16px;
+  border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);
+  font-weight:700;font-size:13.5px;color:var(--ink);letter-spacing:-.015em}
+.spec td{vertical-align:top;padding:14px 16px;border-bottom:1px solid var(--rule);
+  font-size:13px;font-weight:300;line-height:1.8;color:#3a4067;letter-spacing:-.002em}
+.spec tr:last-child th,.spec tr:last-child td{border-bottom:0}
+.sw{display:inline-block;width:.7em;height:.7em;border-radius:2px;
+  border:1px solid rgba(30,36,80,.25);margin-right:.24em;vertical-align:-.04em}
+.gl{color:var(--mark);cursor:help;border-bottom:1px dotted var(--mark)}
+
+/* ---------- 그림 ---------- */
+figure{margin:0}
+.shot{display:block;width:100%;height:auto;border:1px solid var(--rule);
+  border-radius:var(--r-s);background:#1b1f36;cursor:zoom-in;
+  box-shadow:0 3px 16px rgba(30,36,80,.09);transition:box-shadow .18s ease}
+.shot:hover{box-shadow:0 8px 26px rgba(30,36,80,.16)}
+.pair{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+.trio{display:grid;gap:12px;grid-template-columns:repeat(3,1fr)}
+.fig.sm{max-width:min(52%,420px)}
+.fig.tall{max-width:min(40%,340px)}
+.fig.tall figcaption{font-size:12px}
+@media (max-width:820px){.fig.tall{max-width:min(70%,300px)}}
+.fig.sm .pair{gap:8px}
+.fig.sm figcaption{font-size:12px}
+@media (max-width:820px){.fig.sm{max-width:100%}}
+
+.grid4{display:grid;gap:12px;grid-template-columns:repeat(2,1fr)}
+.pcap{font-size:11px;font-weight:500;letter-spacing:.13em;color:var(--ink-3);margin:0 0 8px}
+.prompt{margin:0;background:var(--card);border:1px solid var(--rule);border-radius:var(--r-s);
+  box-shadow:0 2px 14px rgba(30,36,80,.05);padding:16px 18px;font-size:12.5px;line-height:1.85;
+  font-family:"Noto Sans KR",sans-serif;font-weight:300;color:#3a4067;
+  white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere}
+.grid{width:100%;border-collapse:separate;border-spacing:0;background:var(--card);
+  border:1px solid var(--rule);border-radius:var(--r-s);overflow:hidden;
+  box-shadow:0 2px 14px rgba(30,36,80,.05);font-size:13.5px}
+.grid th{text-align:left;vertical-align:top;padding:13px 15px;background:#fbfaFc;
+  border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);font-weight:700;font-size:13px}
+.grid td{vertical-align:top;padding:13px 15px;border-bottom:1px solid var(--rule);
+  border-right:1px solid var(--rule);font-weight:300;line-height:1.75;color:#3a4067}
+.grid tr:last-child td{border-bottom:0}
+.grid th:last-child,.grid td:last-child{border-right:0}
+@media (max-width:820px){
+  .grid4{grid-template-columns:1fr}
+  .grid,.grid thead,.grid tbody,.grid tr,.grid th,.grid td{display:block;width:auto}
+  .grid thead{display:none}
+  .grid tr{border-bottom:1px solid var(--rule);padding:6px 0}
+  .grid tr:last-child{border-bottom:0}
+  .grid td{border-right:0;border-bottom:0;padding:6px 15px}
+  .grid td:first-child{font-weight:700;color:var(--ink)}
+  .prompt{font-size:12px;padding:14px 15px}
+}
+
+figcaption{margin:10px 0 0;font-size:12.5px;color:var(--ink-3);line-height:1.65}
+.hint{font-size:11.5px;color:var(--ink-3);margin:9px 0 0}
+
+/* ---------- 유의 상자 ---------- */
+.aside{background:var(--mark-soft);border-radius:var(--r-s);
+  padding:15px 18px;margin:20px 0 0;font-size:14px;color:var(--ink-2);
+  max-width:var(--prose);line-height:1.72}
+.aside b{color:var(--ink);font-weight:700}
+
+/* ---------- 꼬리말 ---------- */
+footer{margin-top:clamp(40px,6vw,70px);padding:0 0 clamp(40px,6vw,66px);
+  font-size:13.5px;color:var(--ink-2)}
+footer .wrap{background:var(--card);border:1px solid var(--rule);border-radius:var(--r);
+  padding:clamp(24px,4vw,34px) clamp(20px,4vw,30px);
+  box-shadow:0 2px 14px rgba(30,36,80,.05)}
+footer h5{font-size:11px;font-weight:500;letter-spacing:.2em;
+  color:var(--mark);margin:0 0 12px}
+footer p{margin:0 0 .8em;max-width:var(--prose);line-height:1.74}
+footer p:last-child{margin-bottom:0}
+
+/* ---------- 확대 보기 ---------- */
+.lb{position:fixed;inset:0;z-index:90;background:rgba(26,29,54,.96);display:none;
+  overflow:auto;-webkit-overflow-scrolling:touch}
+.lb.open{display:block}
+.lb img{display:block;margin:0 auto;max-width:100%;height:auto;cursor:zoom-in}
+.lb.zoom img{max-width:none;width:1500px;cursor:zoom-out}
+.lb-bar{position:sticky;top:0;display:flex;justify-content:space-between;align-items:center;
+  gap:12px;padding:11px 16px;background:rgba(26,29,54,.93);color:#c5c8de;
+  font-size:12px;letter-spacing:.02em;border-bottom:1px solid rgba(255,255,255,.14)}
+.lb-bar button{background:none;border:1px solid rgba(255,255,255,.32);color:#fff;
+  font:inherit;padding:5px 14px;border-radius:999px;cursor:pointer}
+.lb-bar button:hover{background:rgba(255,255,255,.14)}
+
+:focus-visible{outline:2px solid var(--mark);outline-offset:2px}
+
+@media (max-width:820px){
+  .rec{grid-template-columns:1fr;gap:0}
+  .rec .num{padding-top:12px;margin-bottom:6px}
+  .rec .body{padding-top:0}
+  .pair,.trio{grid-template-columns:1fr}
+  .pin span{display:block}
+  .meta{grid-template-columns:1fr;padding:4px 16px}
+  .meta dt{padding:11px 0 0;border-bottom:0}
+  .meta dd{padding:2px 0 11px}
+  .spec,.spec caption,.spec tbody,.spec tr,.spec th,.spec td{display:block;width:auto}
+  .spec caption{padding:0 0 8px}
+  .spec tr{border-bottom:1px solid var(--rule)}
+  .spec tr:last-child{border-bottom:0}
+  .spec th{border-right:0;border-bottom:0;padding:14px 16px 3px;
+    font-size:11.5px;font-weight:500;letter-spacing:.09em;color:var(--ink-3)}
+  .spec td{padding:0 16px 14px;border-bottom:0}
+}
+@media (prefers-reduced-motion:reduce){
+  *{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+}
+
+</style>
+</head>
+<body data-media="audio">
+<header class="mast">
+  <div class="wrap">
+    <p class="kicker"><span>온라인 부록 1</span><span class="chip">5.3</span><span class="chip">프롬프트 설계</span></p>
+    <h1>단어 팡팡<span class="cn">词语砰砰</span></h1>
+    <p class="sub">학위논문 본문의 RISEN 통합 표가 요약한 단계별 프롬프트 설계와, 웹앱 구현 단계에서 Lovable에 입력한 프롬프트의 핵심 지시를 수록한다. 게임 설계와 교육적 근거는 논문 본문에 있다.</p>
+    <dl class="meta">
+      <dt>논문</dt><dd>AI 바이브 코딩 기반 중국어 교육 웹앱 개발 연구: 게임콘텐츠를 중심으로</dd>
+      <dt>해당 절</dt><dd>제5장 음성 기반 게임 개발 · 5.3 단어 발음 게임: 단어 팡팡</dd>
+      <dt>수록</dt><dd>RISEN 프롬프트 설계 표 2건 · 핵심 구현 지시 표 2건</dd>
+    </dl>
+  </div>
+</header>
+<div class="pin"><div class="wrap"><p><span>이 자료는 <b>2026년 03월 31일</b> 자로 고정한다.</span> <span>이후 웹앱 갱신 내용은 반영하지 않는다.</span></p></div></div><nav class="toc" aria-label="자료 차례"><div class="wrap"><ol><li><a href="#s1">1단계(S1)</a></li><li><a href="#s2">2단계(S2)</a></li></ol></div></nav><main><section id="s1"><div class="band"><div class="wrap"><div class="mk">S1</div><div><h2>1단계(S1) 프롬프트</h2><p class="note">RISEN 프롬프트 설계와 Lovable 입력 프롬프트의 핵심 지시</p></div></div></div><div class="wrap"><div class="rec"><div class="num">자료 01</div><div class="body"><h4>[부록 표10-1] RISEN 프레임워크 기반 단어 팡팡 S1 프롬프트 설계</h4><table class="spec"><caption>RISEN 요소 · 단어 팡팡 S1 적용</caption><tbody><tr><th>Role(역할)</th><td>중국어 교육 게임 설계자이자 React 웹앱 개발 전문가. Supabase 데이터베이스 설계와 풍선 UI 기반 배치형 게임 구현에 정통한 전문가</td></tr><tr><th>Instructions (지시)</th><td>Supabase에 4개 테이블을 생성하고 4개 CSV를 통합 적재한다. 월드 선택, 게임 플레이, 게임 오버의 3화면 웹앱을 구현한다. 라운드마다 6개 풍선을 3×2 그리드로 배치하고, 풍선 탭 시 마이크 녹음을 시작한다. 발음 판정은 시뮬레이션(70% 확률 정답)으로 우선 구현한다. 가중 랜덤 출제, 라이프 5개 시스템, 콤보를 구현한다</td></tr><tr><th>Steps(단계)</th><td>① Supabase에 4개 테이블 생성 및 CSV 데이터 적재, ② 3화면 구조 웹앱 생성, ③ 6개 풍선 3×2 그리드 배치 및 부유 애니메이션, ④ 풍선 탭 → 마이크 녹음 → 시뮬레이션 판정, ⑤ 풍선 터짐 이펙트 및 오답 시 라이프 감소, ⑥ 가중 랜덤 출제 로직, ⑦ 콤보·배지·점수·게임 오버 모달 구현</td></tr><tr><th>End goal(최종 목표)</th><td>4개 월드로 구성된 배치형 연속 라운드 단어 발음 게임의 기본 골격. 시뮬레이션 판정으로 작동하는 프로토타입</td></tr><tr><th>Narrowing(범위 한정)</th><td>① 발음 판정은 시뮬레이션만 구현한다(Azure 연동은 S2). ② 배경 이미지는 적용하지 않는다. ③ 배경음악은 마이크 녹음 품질 보호를 위해 배제한다</td></tr></tbody></table></div></div><div class="rec"><div class="num">자료 02</div><div class="body"><h4>[부록 표10-2] 단어 팡팡 1단계 프롬프트 핵심 구현 지시</h4><table class="spec"><caption>구현 영역 · 핵심 지시 내용</caption><tbody><tr><th>SQL 테이블 생성</th><td>pangpang_words(11,047행), user_progress, user_badges, sessions의 4개 테이블을 생성한다. 4개 월드의 CSV를 통합하여 pangpang_words 단일 테이블에 적재하고, syllable_count 컬럼으로 월드를 구분한다</td></tr><tr><th>풍선 배치</th><td>라운드마다 6개 풍선을 3×2 그리드로 배치한다. 각 풍선은 둥근 사각형 카드 형태로, 한자(큰 글씨)와 병음(작은 글씨)을 표시한다. 다음자 풍선(is_polyphonic=&#x27;Y&#x27;)에는 한국어 뜻 힌트를 병기한다. 급수별 7색 차별화(1급 파랑~7~9급 빨강)</td></tr><tr><th>시뮬레이션 판정</th><td>Web Speech API(SpeechRecognition)로 음성 인식 후, 70% 확률 정답으로 판정한다. 정답 시 풍선 터짐 이펙트(scale+파티클), 오답 시 라이프 -1 + 풍선 유지(재시도 가능)</td></tr><tr><th>가중 랜덤 출제</th><td>current_level에서 50%, ±1급에서 15%/20%, ±2급에서 5%/10% 가중. 연속 정답 5회 시 급수 +1(최대 7), 오답 시 급수 -1(최소 1)</td></tr><tr><th>라이프 시스템</th><td>초기 5개(❤×5), 오답 시 -1, 0이 되면 게임 오버. 회복 없음</td></tr><tr><th>게임 흐름</th><td>월드 선택(4개 카드, 최고 점수·라운드·콤보) → 게임 플레이(HUD + 풍선 6개 + 마이크 버튼) → 게임 오버 모달(통계 + 다시 도전/월드 선택)</td></tr></tbody></table></div></div></div></section><section id="s2"><div class="band"><div class="wrap"><div class="mk">S2</div><div><h2>2단계(S2) 프롬프트</h2><p class="note">RISEN 프롬프트 설계와 Lovable 입력 프롬프트의 핵심 지시</p></div></div></div><div class="wrap"><div class="rec"><div class="num">자료 03</div><div class="body"><h4>[부록 표10-3] RISEN 프레임워크 기반 단어 팡팡 S2 프롬프트 설계</h4><table class="spec"><caption>RISEN 요소 · 단어 팡팡 S2 적용</caption><tbody><tr><th>Role(역할)</th><td>중국어 교육 게임 설계자이자 음성 인식 기술 전문가. Azure Pronunciation Assessment를 활용한 어휘 발음 판정 시스템과 Azure Neural TTS 캐싱 구조를 설계할 수 있는 전문가</td></tr><tr><th>Instructions (지시)</th><td>S1의 시뮬레이션 판정을 Azure Pronunciation Assessment 실시간 판정으로 교체한다. 월드1·2는 임계값 85점, 월드3·4는 80점으로 차등 적용한다. 풍선을 CSS 렌더링으로 전환하고, Azure Neural TTS 캐싱, 오답 노트, 배지 10종, 2회 연속 오답 자동 스킵을 구현한다</td></tr><tr><th>Steps(단계)</th><td>① CSS 풍선 전환(급수별 7색), ② 병음 힌트 토글, ③ 풍선 탭 즉시 녹음, ④ Azure Pronunciation Assessment 연동(월드별 임계값 차등), ⑤ Azure Neural TTS + 캐싱, ⑥ 효과음, ⑦ 오답 노트, ⑧ 배경 이미지 4장 적용, ⑨ 배지 10종, ⑩ 통계 테이블 추가 + 매 라운드 저장, ⑪ 2회 연속 오답 자동 스킵</td></tr><tr><th>End goal(최종 목표)</th><td>Azure Pronunciation Assessment 기반 실시간 발음 판정(월드별 임계값 차등), Azure Neural TTS 캐싱, 11,047개 단어 풀에서 무한 리플레이 가능한 단어 발음 게임</td></tr><tr><th>Narrowing(범위 한정)</th><td>① 성조 클라임의 Edge Function을 재사용한다. ② 동일 단어 2회 연속 오답 시 라이프 소모 없이 자동 스킵한다. ③ 시간 압박 없이 학습자 페이스로 진행한다</td></tr></tbody></table></div></div><div class="rec"><div class="num">자료 04</div><div class="body"><h4>[부록 표10-4] 단어 팡팡 2단계 프롬프트 핵심 구현 지시</h4><table class="spec"><caption>구현 영역 · 핵심 지시 내용</caption><tbody><tr><th>Azure PA 연동</th><td>성조 클라임의 Edge Function(evaluate-pronunciation)을 재사용한다. 풍선 탭 → 즉시 녹음 → WAV → Edge Function → AccuracyScore. 월드1·2는 임계값 85점, 월드3·4는 80점으로 차등 적용한다</td></tr><tr><th>CSS 풍선 전환</th><td>이미지 풍선을 CSS로 교체한다. 급수별 7색(1급 #3B82F6~7~9급 #EF4444), border-radius 16px, 부유 애니메이션. 한자+급수 배지+뜻 힌트(다음자만)</td></tr><tr><th>풍선 탭 즉시 녹음</th><td>풍선 탭 시 즉시 MediaRecorder 녹음 시작. 별도 마이크 버튼 제거. 다시 탭 또는 3초 후 자동 종료 → 판정</td></tr><tr><th>Azure Neural TTS 캐싱</th><td>오답 시 zh-CN-XiaoxiaoNeural로 정답 발음 재생. base64 캐싱하여 오답 노트에서 API 0회 재생. Azure 실패 시 Web Speech API 폴백</td></tr><tr><th>오답 노트</th><td>성조 클라임 스타일 통일. 한자+병음+뜻+음절별 정확도 바+TTS 버튼. 2열 그리드(모바일 1열). 세션 메모리</td></tr><tr><th>2회 오답 스킵</th><td>동일 풍선 2회 연속 오답 시 라이프 소모 없이 자동 스킵. 풍선이 하늘로 날아가는 애니메이션(translateY -200px, opacity 0). Azure 다음자 오판정 대응</td></tr><tr><th>배경·배지·통계</th><td>Cloudinary 배경 이미지 4장(월드별). 배지 10종. pangpang_user_stats 테이블 추가 + 매 라운드 통계 자동 저장</td></tr></tbody></table></div></div></div></section></main><footer>
+  <div class="wrap">
+    <h5>자료에 관하여</h5>
+    <p>이 페이지는 학위논문 부록 1 가운데 5.3 단어 발음 게임: 단어 팡팡의 단계별 프롬프트 기록을 옮긴 것이다. 본문에는 이를 하나로 요약한 RISEN 통합 표만 실었다. <a href="/appendix1/">부록 1 전체 목록으로 돌아가기</a></p>
+    <p>핵심 구현 지시 표는 Lovable에 입력한 프롬프트 가운데 핵심 지시에 해당하는 부분을 정리한 것으로, 프롬프트 전문은 아니다. 제시한 문구는 실제 입력 기록이므로 사후에 수정하지 않았으며, 본문에서 ‘웹앱의 데이터 저장소(Lovable Cloud)’로 표기한 대상이 ‘Supabase’로 나타나는 등 본문 표기와 일치하지 않는 부분이 있다.</p>
+  </div>
+</footer>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="확대 보기">
+  <div class="lb-bar">
+    <span id="lbHint">탭하면 원본 크기로 확대됩니다</span>
+    <button type="button" id="lbClose">닫기 ✕</button>
+  </div>
+  <img id="lbImg" alt="">
+</div>
+
+<script>
+(function(){
+  /* 표 안의 색상 코드 옆에 견본을 덧붙인다. 원문 텍스트는 바꾸지 않는다. */
+  var hex=/#[0-9a-fA-F]{6}\b/g;
+  document.querySelectorAll('.spec td').forEach(function(td){
+    var w=document.createTreeWalker(td,NodeFilter.SHOW_TEXT),nodes=[],n;
+    while(n=w.nextNode())nodes.push(n);
+    nodes.forEach(function(node){
+      hex.lastIndex=0;
+      if(!hex.test(node.nodeValue)){hex.lastIndex=0;return;}
+      hex.lastIndex=0;
+      var frag=document.createDocumentFragment(),last=0,m;
+      while((m=hex.exec(node.nodeValue))!==null){
+        frag.appendChild(document.createTextNode(node.nodeValue.slice(last,m.index)));
+        var s=document.createElement('span');
+        s.className='sw';s.style.background=m[0];s.setAttribute('aria-hidden','true');
+        frag.appendChild(s);
+        frag.appendChild(document.createTextNode(m[0]));
+        last=m.index+m[0].length;
+      }
+      frag.appendChild(document.createTextNode(node.nodeValue.slice(last)));
+      node.parentNode.replaceChild(frag,node);
+    });
+  });
+
+  /* 확대 보기 */
+  var lb=document.getElementById('lb'),lbImg=document.getElementById('lbImg'),
+      lbHint=document.getElementById('lbHint'),last=null;
+  function open(img){
+    lbImg.src=img.currentSrc||img.src;lbImg.alt=img.alt||'';
+    lb.classList.add('open');lb.classList.remove('zoom');
+    lbHint.textContent='탭하면 원본 크기로 확대됩니다';
+    document.body.style.overflow='hidden';last=img;
+    document.getElementById('lbClose').focus();
+  }
+  function close(){
+    lb.classList.remove('open','zoom');document.body.style.overflow='';
+    if(last)last.focus();
+  }
+  document.querySelectorAll('.shot').forEach(function(img){
+    img.tabIndex=0;
+    img.addEventListener('click',function(){open(img)});
+    img.addEventListener('keydown',function(e){
+      if(e.key==='Enter'||e.key===' '){e.preventDefault();open(img)}
+    });
+  });
+  lbImg.addEventListener('click',function(){
+    lb.classList.toggle('zoom');
+    lbHint.textContent=lb.classList.contains('zoom')?'탭하면 화면에 맞춥니다':'탭하면 원본 크기로 확대됩니다';
+    if(lb.classList.contains('zoom'))lb.scrollLeft=(lbImg.width-lb.clientWidth)/2;
+  });
+  document.getElementById('lbClose').addEventListener('click',close);
+  lb.addEventListener('click',function(e){if(e.target===lb)close()});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&lb.classList.contains('open'))close()});
+
+  /* 차례 클릭 — 페이지 안에서만 이동한다.
+     화면 안에 끼워 넣는 환경(iframe)에서 외부 이동으로 오인되지 않도록
+     스크립트가 뜨면 href를 걷어내고 클릭을 직접 처리한다. */
+  document.querySelectorAll('nav.toc a[href^="#"]').forEach(function(a){
+    var sel=a.getAttribute('href');
+    a.setAttribute('data-target',sel);
+    a.removeAttribute('href');
+    a.setAttribute('role','link');
+    a.tabIndex=0;
+    function go(e){
+      e.preventDefault();
+      var t=document.querySelector(sel);
+      if(t)t.scrollIntoView({behavior:'smooth',block:'start'});
+    }
+    a.addEventListener('click',go);
+    a.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' ')go(e)});
+  });
+
+  /* 차례 현재 위치 */
+  var links=[].slice.call(document.querySelectorAll('nav.toc a')),
+      secs=links.map(function(a){return document.querySelector(a.getAttribute('data-target')||a.getAttribute('href')||'#_')});
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(en){
+        if(!en.isIntersecting)return;
+        var i=secs.indexOf(en.target);
+        links.forEach(function(a,j){a.classList.toggle('on',i===j)});
+        var a=links[i];
+        if(a)a.closest('ol').scrollLeft=a.offsetLeft-16;
+      });
+    },{rootMargin:'-56px 0px -72% 0px'});
+    secs.forEach(function(s){if(s)io.observe(s)});
+  }
+})();
+</script>
+</body>
+</html>
